@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edgenuity Enhance - Customize Your Experience</title>
+    <link rel="icon" type="image/x-icon" href="Icons/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+
+
+</head>
+<body>
+    <div class="background"></div>
+    <div class="noise"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <img src="Icons/Main.png" alt="Edgenuity Enhance Logo" class="logo">
+        <h1>Edgenuity Enhance</h1>
+        <p class="tagline">Transform your Edgenuity experience with powerful customization tools and quality of life options.</p>
+        
+        <div class="download-section">
+            <button class="download-btn" id="downloadBtn">Download Extension</button>
+            <button class="install-instructions-btn" onclick="showInstructions()">How to Install</button>
+            
+<div class="custom-select-container">
+    <div class="version-label">Select Version</div>
+    <div class="select-trigger" id="dropdownTrigger">
+        <span id="selectedText">Loading...</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div id="selectedTagContainer" style="display: flex; gap: 4px; flex-wrap: wrap;"></div>
+            <span style="font-size: 10px; color: #EBA8A5;">▼</span>
+        </div>
+    </div>
+    <div class="options-menu" id="dropdownMenu"></div>
+</div>
+        </div>
+
+        <div class="footer">
+            Made by <a href="https://sites.google.com/view/prazadenta" target="_blank"><strong><u>Prazadenta</u></strong></a> | <a href="https://sites.google.com/view/prazadenta/terms-of-service" target="_blank"><strong><u>Terms</u></strong></a> | <a href="https://sites.google.com/view/prazadenta/privacy-policy" target="_blank"><strong><u>Privacy</u></strong></a>
+        </div>
+    </div>
+
+    <div class="modal" id="instructionsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeInstructions()">×</button>
+            <h2 class="modal-title">Installation Instructions</h2>
+            
+            <div class="instruction-step">
+                <span class="step-number">1</span>
+                <span class="step-text">Download the extension zip file using the "Download Extension" button</span>
+            </div>
+            
+            <div class="instruction-step">
+                <span class="step-number">2</span>
+                <span class="step-text">Extract/unzip the downloaded file to a folder on your computer</span>
+            </div>
+            
+            <div class="instruction-step">
+                <span class="step-number">3</span>
+                <span class="step-text">Open your browser and navigate to the extensions page</span>
+            </div>
+            
+            <div class="instruction-step">
+                <span class="step-number">4</span>
+                <span class="step-text">Enable <strong>"Developer mode"</strong> using the toggle in the top right corner</span>
+            </div>
+            
+            <div class="instruction-step">
+                <span class="step-number">5</span>
+                <span class="step-text">Click the <strong>"Load unpacked"</strong> button</span>
+            </div>
+            
+            <div class="instruction-step">
+                <span class="step-number">6</span>
+                <span class="step-text">Select the folder where you extracted the extension files</span>
+            </div>
+            
+            <div class="instruction-step">
+                <span class="step-number">7</span>
+                <span class="step-text">The extension should now be installed and ready to use!</span>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let versions = [];
+    let selectedVersionIndex = 0;
+
+    const trigger = document.getElementById('dropdownTrigger');
+    const menu = document.getElementById('dropdownMenu');
+    const selectedText = document.getElementById('selectedText');
+    const selectedTagContainer = document.getElementById('selectedTagContainer');
+
+    async function loadVersions() {
+        try {
+            const response = await fetch('Extension-Versions.html');
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const versionOptions = doc.querySelectorAll('#versions option');
+            
+            menu.innerHTML = '';
+            versions = [];
+
+            versionOptions.forEach((option, index) => {
+                const name = option.textContent;
+                const path = option.getAttribute('data-path');
+                const tags = (option.getAttribute('data-tag') || "").split(' ').filter(t => t !== "");
+
+                versions.push({ name, path, tags });
+
+                const item = document.createElement('div');
+                item.className = 'option-item';
+                
+                let tagsHTML = tags.map(t => `<span class="status-tag tag-${t}">${t}</span>`).join('');
+                
+                item.innerHTML = `<span>${name}</span><div>${tagsHTML}</div>`;
+                item.onclick = () => selectVersion(index);
+                menu.appendChild(item);
+            });
+
+            if (versions.length > 0) selectVersion(0);
+        } catch (error) {
+            selectedText.innerText = "Error loading versions";
+        }
+    }
+
+    function selectVersion(index) {
+        selectedVersionIndex = index;
+        const v = versions[index];
+        selectedText.innerText = v.name;
+        
+        selectedTagContainer.innerHTML = v.tags.map(t => `<span class="status-tag tag-${t}">${t}</span>`).join('');
+        menu.classList.remove('active');
+    }
+
+    function showInstructions() {
+        const modal = document.getElementById('instructionsModal');
+        modal.classList.add('active');
+    }
+
+    function closeInstructions() {
+        const modal = document.getElementById('instructionsModal');
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.remove('active', 'closing');
+        }, 300);
+    }
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('active');
+    });
+
+    window.addEventListener('click', () => menu.classList.remove('active'));
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        if (versions[selectedVersionIndex]) {
+            const link = document.createElement('a');
+            link.href = versions[selectedVersionIndex].path;
+            link.download = versions[selectedVersionIndex].path.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', loadVersions);
+</script>
+</body>
+</html>
