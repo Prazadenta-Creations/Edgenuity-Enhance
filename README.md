@@ -6,7 +6,7 @@ Transform your Edgenuity experience with powerful customization tools and qualit
 
 ## 🔗 Site Link
 
-[Link](https://adamant-process.github.io/Edgenuity-Enhance)
+[Link](https://prazadenta-creations.github.io/Edgenuity-Enhance)
 
 ---
 
